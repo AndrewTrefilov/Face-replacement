@@ -1,0 +1,196 @@
+version: "2.4"
+services:
+    api:
+      restart: always
+      build:
+        context: ./api
+      command: gunicorn --bind 0.0.0.0:5000 api:app --workers=4
+      volumes:
+        - ./api:/usr/api
+        - /tmpfs_fr:/usr/tmpfs_fr
+        - /etc/localtime:/etc/localtime:ro
+      expose:
+        - 5000
+      depends_on:
+        - redis
+
+    worker0:
+      restart: always
+      build:
+        context: ./api
+      command: python3 worker.py 0
+      environment:
+        - NVIDIA_VISIBLE_DEVICES=all
+        - NVIDIA_DRIVER_CAPABILITIES=video,compute,utility 
+      runtime: nvidia
+      volumes:
+        - ./api:/usr/api
+        - /tmpfs_fr:/usr/tmpfs_fr
+        - ./replace:/usr/replace
+        - /etc/localtime:/etc/localtime:ro
+      depends_on:
+        - redis
+
+    worker1:
+      restart: always
+      build:
+        context: ./api
+      command: python3 worker.py 1
+      environment:
+        - NVIDIA_VISIBLE_DEVICES=all
+        - NVIDIA_DRIVER_CAPABILITIES=video,compute,utility 
+      runtime: nvidia
+      volumes:
+        - ./api:/usr/api
+        - /tmpfs_fr:/usr/tmpfs_fr
+        - ./replace:/usr/replace
+        - /etc/localtime:/etc/localtime:ro
+      depends_on:
+        - redis
+    
+    detector0:
+      restart: always
+      build:
+        context: ./detector
+      command: python3 detector.py 9000 0
+      environment:
+        - NVIDIA_VISIBLE_DEVICES=all
+        - NVIDIA_DRIVER_CAPABILITIES=compute 
+      runtime: nvidia
+      volumes:
+        - ./detector:/usr/detector
+        - ./retina_face:/usr/retina_face
+      expose:
+        - 9000
+
+    detector1:
+      restart: always
+      build:
+        context: ./detector
+      command: python3 detector.py 9001 1
+      environment:
+        - NVIDIA_VISIBLE_DEVICES=all
+        - NVIDIA_DRIVER_CAPABILITIES=compute 
+      runtime: nvidia
+      volumes:
+        - ./detector:/usr/detector
+        - ./retina_face:/usr/retina_face
+      expose:
+        - 9001
+
+    detector2:
+      restart: always
+      build:
+        context: ./detector
+      command: python3 detector.py 9002 2
+      environment:
+        - NVIDIA_VISIBLE_DEVICES=all
+        - NVIDIA_DRIVER_CAPABILITIES=compute 
+      runtime: nvidia
+      volumes:
+        - ./detector:/usr/detector
+        - ./retina_face:/usr/retina_face
+      expose:
+        - 9002
+  
+    detector3:
+      restart: always
+      build:
+        context: ./detector
+      command: python3 detector.py 9003 3
+      environment:
+        - NVIDIA_VISIBLE_DEVICES=all
+        - NVIDIA_DRIVER_CAPABILITIES=compute 
+      runtime: nvidia
+      volumes:
+        - ./detector:/usr/detector
+        - ./retina_face:/usr/retina_face
+      expose:
+        - 9003
+
+    detector4:
+      restart: always
+      build:
+        context: ./detector
+      command: python3 detector.py 9004 0
+      environment:
+        - NVIDIA_VISIBLE_DEVICES=all
+        - NVIDIA_DRIVER_CAPABILITIES=compute 
+      runtime: nvidia
+      volumes:
+        - ./detector:/usr/detector
+        - ./retina_face:/usr/retina_face
+      expose:
+        - 9004
+
+    detector5:
+      restart: always
+      build:
+        context: ./detector
+      command: python3 detector.py 9005 1
+      environment:
+        - NVIDIA_VISIBLE_DEVICES=all
+        - NVIDIA_DRIVER_CAPABILITIES=compute 
+      runtime: nvidia
+      volumes:
+        - ./detector:/usr/detector
+        - ./retina_face:/usr/retina_face
+      expose:
+        - 9005
+
+    detector6:
+      restart: always
+      build:
+        context: ./detector
+      command: python3 detector.py 9006 2
+      environment:
+        - NVIDIA_VISIBLE_DEVICES=all
+        - NVIDIA_DRIVER_CAPABILITIES=compute 
+      runtime: nvidia
+      volumes:
+        - ./detector:/usr/detector
+        - ./retina_face:/usr/retina_face
+      expose:
+        - 9006
+  
+    detector7:
+      restart: always
+      build:
+        context: ./detector
+      command: python3 detector.py 9007 3
+      environment:
+        - NVIDIA_VISIBLE_DEVICES=all
+        - NVIDIA_DRIVER_CAPABILITIES=compute 
+      runtime: nvidia
+      volumes:
+        - ./detector:/usr/detector
+        - ./retina_face:/usr/retina_face
+      expose:
+        - 9007
+
+    scheduler:
+      restart: always
+      build:
+        context: ./scheduler
+      command: python3 scheduler.py
+      volumes:
+        - ./scheduler:/usr/scheduler
+        - /tmpfs_fr:/usr/tmpfs_fr
+        - ./api:/usr/api
+        - /etc/localtime:/etc/localtime:ro
+      depends_on:
+        - redis
+
+    redis:
+      restart: always
+      image: redis:5.0.7-alpine
+      volumes:
+        - /etc/localtime:/etc/localtime:ro
+
+    nginx:
+      build: ./nginx
+      ports:
+        - 8600:80
+      depends_on:
+        - api
+        

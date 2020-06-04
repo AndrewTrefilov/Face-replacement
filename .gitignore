@@ -1,0 +1,10 @@
+.vscode
+.env
+*.mp4
+*.m3u8
+*.ts
+__pycache__/
+facereplace_env/
+notebooks/
+.ipynb_checkpoints/
+*.pth
